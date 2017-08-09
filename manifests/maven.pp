@@ -28,7 +28,7 @@
 #     version => "3.2.5",
 #   }
 #
-class maven::maven(
+class maven::maven (
   $version = '3.2.5',
   $repo = {
     #url      => 'http://repo1.maven.org/maven2',
@@ -61,33 +61,33 @@ class maven::maven(
     # dependency for now
     if "x${repo['url']}x" != 'xx' {
       wget::authfetch { 'fetch-maven':
-        source      => "${repo['url']}/org/apache/maven/apache-maven/${version}/apache-maven-${version}-bin.tar.gz",
+        source      => "${repo['url']}/apache-maven-${version}-bin.tar.gz",
         destination => $archive,
         user        => $repo['username'],
         password    => $repo['password'],
-        before      => Exec['maven-untar'],
+        before      => Exec['maven-untar']
       }
     } else {
       wget::fetch { 'fetch-maven':
         source      => "http://archive.apache.org/dist/maven/maven-3/${version}/binaries/apache-maven-${version}-bin.tar.gz",
         destination => $archive,
-        before      => Exec['maven-untar'],
+        before      => Exec['maven-untar']
       }
     }
     exec { 'maven-untar':
-      command => "tar xf /tmp/apache-maven-${version}-bin.tar.gz",
+      command => "tar xf ${archive}",
       cwd     => '/opt',
       creates => "/opt/apache-maven-${version}",
-      path    => ['/bin','/usr/bin'],
+      path    => ['/bin','/usr/bin']
     }
 
     file { '/usr/bin/mvn':
       ensure  => link,
       target  => "/opt/apache-maven-${version}/bin/mvn",
-      require => Exec['maven-untar'],
-    } ->
-    file { '/usr/local/bin/mvn':
-      ensure  => absent,
+      require => Exec['maven-untar']
+    }
+    -> file { '/usr/local/bin/mvn':
+      ensure  => absent
     }
   }
 }
